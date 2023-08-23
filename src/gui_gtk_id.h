@@ -104,8 +104,8 @@ static const char *objectbench[LASTBENCH] =
 static const char *objectabout[LASTABOUT] =
 {
 	"about_descr",
-	"about_version", "about_author", "about_site",
-	"license_labcopyright", "license_lablicense", "license_nowarranty"
+	"about_version", "about_author", "about.website",
+	"license_labcopyright", "license_lablicense", "license.warranty"
 };
 
 static const char *nicktab[NO_ABOUT + 1] =

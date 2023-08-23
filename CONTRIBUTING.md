@@ -14,7 +14,7 @@ When new CPUs are out, we need to add them in databases. You can find databases 
 
 ## Develop
 
-CPU-X is written in C and uses the CMake build system.
+CPU-X is written in C++ and uses the CMake build system.
 
 First of all, if you are interested to modify CPU-X source code, take a look at [how to manually build CPU-X](https://github.com/TheTumultuousUnicornOfDarkness/CPU-X/wiki/manual-build).
 

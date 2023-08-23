@@ -124,19 +124,19 @@ static gboolean grefresh(GThrd *refr)
 				gtk_label_set_text(GTK_LABEL(glab->gtktab_caches[VALUE][i]), data->tab_caches[VALUE][i]);
 			break;
 		case NO_SYSTEM:
-			gtk_label_set_text(GTK_LABEL(glab->gtktab_system[VALUE][UPTIME]), data->tab_system[VALUE][UPTIME]);
+			gtk_label_set_text(GTK_LABEL(glab->gtksystem.os.uptime.value), data->system.os.uptime.value);
 			for(i = USED; i < LASTSYSTEM; i++)
 				gtk_label_set_text(GTK_LABEL(glab->gtktab_system[VALUE][i]), data->tab_system[VALUE][i]);
 			break;
 		case NO_GRAPHICS:
-			gtk_label_set_text(GTK_LABEL(glab->gtktab_graphics[VALUE][GPU1PCIE]),        data->tab_graphics[VALUE][GPU1PCIE        + opts->selected_gpu * GPUFIELDS]);
-			gtk_label_set_text(GTK_LABEL(glab->gtktab_graphics[VALUE][GPU1TEMPERATURE]), data->tab_graphics[VALUE][GPU1TEMPERATURE + opts->selected_gpu * GPUFIELDS]);
-			gtk_label_set_text(GTK_LABEL(glab->gtktab_graphics[VALUE][GPU1USAGE]),       data->tab_graphics[VALUE][GPU1USAGE       + opts->selected_gpu * GPUFIELDS]);
-			gtk_label_set_text(GTK_LABEL(glab->gtktab_graphics[VALUE][GPU1VOLTAGE]),     data->tab_graphics[VALUE][GPU1VOLTAGE     + opts->selected_gpu * GPUFIELDS]);
-			gtk_label_set_text(GTK_LABEL(glab->gtktab_graphics[VALUE][GPU1POWERAVG]),    data->tab_graphics[VALUE][GPU1POWERAVG    + opts->selected_gpu * GPUFIELDS]);
-			gtk_label_set_text(GTK_LABEL(glab->gtktab_graphics[VALUE][GPU1CORECLOCK]),   data->tab_graphics[VALUE][GPU1CORECLOCK   + opts->selected_gpu * GPUFIELDS]);
-			gtk_label_set_text(GTK_LABEL(glab->gtktab_graphics[VALUE][GPU1MEMCLOCK]),    data->tab_graphics[VALUE][GPU1MEMCLOCK    + opts->selected_gpu * GPUFIELDS]);
-			gtk_label_set_text(GTK_LABEL(glab->gtktab_graphics[VALUE][GPU1MEMUSED]),     data->tab_graphics[VALUE][GPU1MEMUSED     + opts->selected_gpu * GPUFIELDS]);
+			gtk_label_set_text(GTK_LABEL(glab->gtkgraphics.cards.gpu1pcie.value),        data->tab_graphics[VALUE][GPU1PCIE        + opts->selected_gpu * GPUFIELDS]);
+			gtk_label_set_text(GTK_LABEL(glab->gtkgraphics.cards.gpu1temperature.value), data->tab_graphics[VALUE][GPU1TEMPERATURE + opts->selected_gpu * GPUFIELDS]);
+			gtk_label_set_text(GTK_LABEL(glab->gtkgraphics.cards.gpu1usage.value),       data->tab_graphics[VALUE][GPU1USAGE       + opts->selected_gpu * GPUFIELDS]);
+			gtk_label_set_text(GTK_LABEL(glab->gtkgraphics.cards.gpu1voltage.value),     data->tab_graphics[VALUE][GPU1VOLTAGE     + opts->selected_gpu * GPUFIELDS]);
+			gtk_label_set_text(GTK_LABEL(glab->gtkgraphics.cards.gpu1poweravg.value),    data->tab_graphics[VALUE][GPU1POWERAVG    + opts->selected_gpu * GPUFIELDS]);
+			gtk_label_set_text(GTK_LABEL(glab->gtkgraphics.cards.gpu1coreclock.value),   data->tab_graphics[VALUE][GPU1CORECLOCK   + opts->selected_gpu * GPUFIELDS]);
+			gtk_label_set_text(GTK_LABEL(glab->gtkgraphics.cards.gpu1memclock.value),    data->tab_graphics[VALUE][GPU1MEMCLOCK    + opts->selected_gpu * GPUFIELDS]);
+			gtk_label_set_text(GTK_LABEL(glab->gtkgraphics.cards.gpu1memused.value),     data->tab_graphics[VALUE][GPU1MEMUSED     + opts->selected_gpu * GPUFIELDS]);
 			break;
 		case NO_BENCH:
 			for(i = PRIMESLOWSCORE; i <= PRIMEFASTSCORE; i += BENCHFIELDS)
@@ -358,7 +358,7 @@ static void change_benchsensitive(GtkLabels *glab, Labels *data)
 		gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(glab->gtktab_bench[VALUE][indP]),
 			(double) data->b_data->elapsed / (data->b_data->duration * 60));
 		gtk_widget_set_sensitive(glab->gtktab_bench[VALUE][indS],         false);
-		gtk_widget_set_sensitive(glab->gtktab_bench[VALUE][PARAMTHREADS], false);
+		gtk_widget_set_sensitive(glab->gtkbench.settings.threads.value, false);
 	}
 	else if(!data->b_data->run && !skip)
 	{
@@ -368,7 +368,7 @@ static void change_benchsensitive(GtkLabels *glab, Labels *data)
 #endif /* GTK_CHECK_VERSION(3, 15, 0) */
 		gtk_switch_set_active(GTK_SWITCH(glab->gtktab_bench[VALUE][indA]), false);
 		gtk_widget_set_sensitive(glab->gtktab_bench[VALUE][indS],          true);
-		gtk_widget_set_sensitive(glab->gtktab_bench[VALUE][PARAMTHREADS],  true);
+		gtk_widget_set_sensitive(glab->gtkbench.settings.threads.value,  true);
 	}
 }
 
@@ -565,11 +565,11 @@ static void set_logos(GtkLabels *glab, Labels *data)
 	GdkPixbuf *cpu_pixbuf = NULL, *unknown_pixbuf = NULL, *prg_pixbuf = NULL;
 	GError *error = NULL;
 
-	width  = gtk_widget_get_allocated_width(glab->gtktab_cpu[VALUE][SPECIFICATION]) -
-	         gtk_widget_get_allocated_width(glab->gtktab_cpu[VALUE][VENDOR]) - 6;
-	height = (gtk_widget_get_allocated_height(glab->gtktab_cpu[VALUE][VENDOR]) + 4) * 4;
+	width  = gtk_widget_get_allocated_width(glab->gtkcpu.processor.specification.value) -
+	         gtk_widget_get_allocated_width(glab->gtkcpu.processor.vendor.value) - 6;
+	height = (gtk_widget_get_allocated_height(glab->gtkcpu.processor.vendor.value) + 4) * 4;
 
-	cpu_pixbuf     = gdk_pixbuf_new_from_file_at_scale(data_path(format("%s.png", data->tab_cpu[VALUE][VENDOR])), width, height, TRUE, &error);
+	cpu_pixbuf     = gdk_pixbuf_new_from_file_at_scale(data_path(format("%s.png", data->cpu.processor.vendor.value)), width, height, TRUE, &error);
 	unknown_pixbuf = gdk_pixbuf_new_from_file_at_scale(data_path("Unknown.png"), width, height, TRUE, NULL);
 	prg_pixbuf     = gdk_pixbuf_new_from_file_at_scale(data_path("CPU-X.png"), prg_size, prg_size, TRUE, NULL);
 
@@ -589,8 +589,8 @@ static void set_labels(GtkLabels *glab, Labels *data)
 {
 	int i, j;
 	const int pkcheck = system(format("pkcheck --action-id org.freedesktop.policykit.exec --process %u > /dev/null 2>&1", getpid()));
-	const gint width1 = gtk_widget_get_allocated_width(glab->gtktab_system[VALUE][COMPILER]);
-	const gint width2 = width1 - gtk_widget_get_allocated_width(glab->gtktab_system[VALUE][USED]) - 6;
+	const gint width1 = gtk_widget_get_allocated_width(glab->gtksystem.os.compiler.value);
+	const gint width2 = width1 - gtk_widget_get_allocated_width(glab->gtksystem.memory.used.value) - 6;
 	GtkRequisition requisition;
 
 	/* Footer label */
@@ -629,10 +629,10 @@ static void set_labels(GtkLabels *glab, Labels *data)
 #endif /* HAS_LIBCPUID */
 	gtk_combo_box_set_active(GTK_COMBO_BOX(glab->activecore), opts->selected_core);
 
-	gtk_widget_set_tooltip_text(glab->gtktab_cpu[NAME][FAMILY], _("BaseFamily"));
-	gtk_widget_set_tooltip_text(glab->gtktab_cpu[NAME][MODEL],  _("BaseModel"));
-	gtk_widget_set_tooltip_text(glab->gtktab_cpu[NAME][EXTFAMILY], _("CPU display (\"true\") family (computed as BaseFamily+ExtendedFamily)"));
-	gtk_widget_set_tooltip_text(glab->gtktab_cpu[NAME][EXTMODEL],  _("CPU display (\"true\") model (computed as (ExtendedModel<<4)+BaseModel)"));
+	gtk_widget_set_tooltip_text(glab->gtkcpu.processor.family.name, _("BaseFamily"));
+	gtk_widget_set_tooltip_text(glab->gtkcpu.processor.model.name,  _("BaseModel"));
+	gtk_widget_set_tooltip_text(glab->gtkcpu.processor.dispfamily.name, _("CPU display (\"true\") family (computed as BaseFamily+ExtendedFamily)"));
+	gtk_widget_set_tooltip_text(glab->gtkcpu.processor.dispmodel.name,  _("CPU display (\"true\") model (computed as (ExtendedModel<<4)+BaseModel)"));
 
 	/* Tab Caches */
 	for(i = L1SIZE; i < LASTCACHES; i++)
@@ -675,7 +675,7 @@ static void set_labels(GtkLabels *glab, Labels *data)
 	}
 	for(i = BARUSED; i < LASTBAR; i++)
 	{
-		gtk_widget_get_preferred_size(glab->gtktab_system[VALUE][USED], NULL, &requisition);
+		gtk_widget_get_preferred_size(glab->gtksystem.memory.used.value, NULL, &requisition);
 		gtk_widget_set_size_request(glab->bar[i], width2, requisition.height);
 	}
 
@@ -704,10 +704,10 @@ static void set_labels(GtkLabels *glab, Labels *data)
 		gtk_progress_bar_set_text(GTK_PROGRESS_BAR(glab->gtktab_bench[VALUE][i]), data->tab_bench[VALUE][i]);
 		gtk_widget_set_size_request(glab->gtktab_bench[VALUE][i], width1, -1);
 	}
-	gtk_spin_button_set_increments(GTK_SPIN_BUTTON(glab->gtktab_bench[VALUE][PARAMDURATION]), 1, 60);
-	gtk_spin_button_set_increments(GTK_SPIN_BUTTON(glab->gtktab_bench[VALUE][PARAMTHREADS]),  1, 1);
-	gtk_spin_button_set_range     (GTK_SPIN_BUTTON(glab->gtktab_bench[VALUE][PARAMDURATION]), 1, 60 * 24);
-	gtk_spin_button_set_range     (GTK_SPIN_BUTTON(glab->gtktab_bench[VALUE][PARAMTHREADS]),  1, data->all_cpu_count);
+	gtk_spin_button_set_increments(GTK_SPIN_BUTTON(glab->gtkbench.settings.duration.value), 1, 60);
+	gtk_spin_button_set_increments(GTK_SPIN_BUTTON(glab->gtkbench.settings.threads.value),  1, 1);
+	gtk_spin_button_set_range     (GTK_SPIN_BUTTON(glab->gtkbench.settings.duration.value), 1, 60 * 24);
+	gtk_spin_button_set_range     (GTK_SPIN_BUTTON(glab->gtkbench.settings.threads.value),  1, data->all_cpu_count);
 
 	/* Tab About */
 	for(i = DESCRIPTION; i < LASTABOUT; i++)
@@ -753,10 +753,10 @@ static void set_signals(GtkLabels *glab, Labels *data, GThrd *refr)
 	g_signal_connect(glab->activecard,     "changed",      G_CALLBACK(change_activecard),    refr);
 
 	/* Tab Bench */
-	g_signal_connect(glab->gtktab_bench[VALUE][PRIMESLOWRUN],  "button-press-event", G_CALLBACK(start_benchmark_bg), refr);
-	g_signal_connect(glab->gtktab_bench[VALUE][PRIMEFASTRUN],  "button-press-event", G_CALLBACK(start_benchmark_bg), refr);
-	g_signal_connect(glab->gtktab_bench[VALUE][PARAMDURATION], "value-changed",      G_CALLBACK(change_benchparam),  data);
-	g_signal_connect(glab->gtktab_bench[VALUE][PARAMTHREADS],  "value-changed",      G_CALLBACK(change_benchparam),  data);
+	g_signal_connect(glab->gtkbench.prime_slow.state.value,  "button-press-event", G_CALLBACK(start_benchmark_bg), refr);
+	g_signal_connect(glab->gtkbench.prime_fast.state.value,  "button-press-event", G_CALLBACK(start_benchmark_bg), refr);
+	g_signal_connect(glab->gtkbench.settings.duration.value, "value-changed",      G_CALLBACK(change_benchparam),  data);
+	g_signal_connect(glab->gtkbench.settings.threads.value,  "value-changed",      G_CALLBACK(change_benchparam),  data);
 
 	/* Tab System */
 	for(i = BARUSED; i < LASTBAR; i++)

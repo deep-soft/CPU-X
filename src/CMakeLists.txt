@@ -34,8 +34,8 @@ if(WITH_NCURSES)
 		include_directories(${NCURSES_INCLUDE_DIRS})
 		link_directories(${NCURSES_LIBRARY_DIRS})
 		add_library(tui_ncurses STATIC
-			tui_ncurses.c
-			tui_ncurses.h
+			tui_ncurses.cpp
+			tui_ncurses.hpp
 		)
 		set(NCURSES_LIBRARIES "tui_ncurses" ${NCURSES_LIBRARIES})
 	endif(NCURSES_FOUND)
@@ -184,19 +184,32 @@ print_config("BANDWIDTH"           "${BANDWIDTH_VERSION}"   BANDWIDTH_FOUND   WI
 
 # Executable
 add_executable(${APP_EXEC}
-	main.c
-	util.c
-	cpu-x.h
-	core.c
-	core.h
-	ipc.h
+	core.cpp
+	core.hpp
+	daemon_client.cpp
+	daemon_client.hpp
+	daemon.h
+	data.cpp
+	data.hpp
+	logger.cpp
+	logger.hpp
+	main.cpp
+	options.cpp
+	options.hpp
+	util.cpp
+	util.hpp
 )
 
 add_executable(${DAEMON_EXEC}
-	daemon.c
+	daemon_server.cpp
+	daemon_server.hpp
 	daemon.h
-	ipc.h
-	cpu-x.h
+	logger.cpp
+	logger.hpp
+	options.cpp
+	options.hpp
+	util.cpp
+	util.hpp
 )
 
 # Libsystem extra-definitions
@@ -224,6 +237,7 @@ add_definitions(-DPRGVER="${PROJECT_VERSION}"
 	-DLOCALEDIR="${CMAKE_INSTALL_FULL_LOCALEDIR}"
 	-DTERMINFODIR="/lib/terminfo"
 	-DDAEMON_EXEC="${DAEMON_EXEC}"
+	-DDAEMON_TMP_EXEC="/tmp/${DAEMON_EXEC}"
 	-DDAEMON_PATH="${DAEMON_PATH}"
 )
 
@@ -239,7 +253,6 @@ endif(APPIMAGE)
 
 # Link libraries
 target_link_libraries(${APP_EXEC}
-	m
 	${Intl_LIBRARIES}
 	${CMAKE_THREAD_LIBS_INIT}
 	${Backtrace_LIBRARIES}

@@ -83,7 +83,13 @@
 #include "dmioutput.h"
 
 /* CPU-X */
-#include "../ipc.h"
+#include "../daemon.h"
+#if HAS_GETTEXT
+# define _(msg)               gettext(msg)
+#else
+# define _(msg)               msg
+#endif /* HAS_GETTEXT */
+#define N_(msg)               msg
 DmidecodeData *cpux_data;
 #define STR_LEN 24
 
@@ -5493,24 +5499,24 @@ static void dmi_decode_cpux(const struct dmi_header *h)
 	switch (h->type)
 	{
 		case 0: /* 7.1 BIOS Information */
-			snprintf(cpux_data->motherboard[BRAND],       MAXSTR, "%s", dmi_string(h, data[0x04]));
-			snprintf(cpux_data->motherboard[BIOSVERSION], MAXSTR, "%s", dmi_string(h, data[0x05]));
-			snprintf(cpux_data->motherboard[DATE],        MAXSTR, "%s", dmi_string(h, data[0x08]));
-			snprintf(cpux_data->motherboard[ROMSIZE],     MAXSTR, "%s / %s",
+			snprintf(cpux_data->bios_brand,   MAXSTR, "%s", dmi_string(h, data[0x04]));
+			snprintf(cpux_data->bios_version, MAXSTR, "%s", dmi_string(h, data[0x05]));
+			snprintf(cpux_data->bios_date,    MAXSTR, "%s", dmi_string(h, data[0x08]));
+			snprintf(cpux_data->bios_romsize, MAXSTR, "%s / %s",
 			         dmi_bios_runtime_size_str((0x10000 - WORD(data + 0x06)) << 4),
 			         dmi_bios_rom_size_str(data[0x09], h->length < 0x1A ? 16 : WORD(data + 0x18)));
 			break;
 		case 2: /* 7.3 Base Board Information */
-			snprintf(cpux_data->motherboard[MANUFACTURER], MAXSTR, "%s", dmi_string(h, data[0x04]));
-			snprintf(cpux_data->motherboard[MBMODEL],      MAXSTR, "%s", dmi_string(h, data[0x05]));
-			snprintf(cpux_data->motherboard[REVISION],     MAXSTR, "%s", dmi_string(h, data[0x06]));
+			snprintf(cpux_data->mb_manufacturer, MAXSTR, "%s", dmi_string(h, data[0x04]));
+			snprintf(cpux_data->mb_model,        MAXSTR, "%s", dmi_string(h, data[0x05]));
+			snprintf(cpux_data->mb_revision,     MAXSTR, "%s", dmi_string(h, data[0x06]));
 			break;
 		case 4: /* 7.5 Processor Information */
 			cpux_data->bus_freq = (double) WORD(data + 0x12);
 			snprintf(cpux_data->cpu_package, MAXSTR, "%s", dmi_string(h, data[0x04]));
 			break;
 		case 17: /* 7.18 Memory Device */
-			if(cpux_data->dimm_count < LASTMEMORY)
+			if(cpux_data->dimm_count < DMIDECODE_MAX_DIMMS)
 			{
 				if((strstr(dmi_string(h, data[0x17]), "Empty") != NULL) || (WORD(data + 0x0C) == 0))
 					snprintf(cpux_data->memory[cpux_data->dimm_count], MAXSTR, "- - - - - - - - - - - - - - - - - - -");
@@ -5529,17 +5535,17 @@ static void dmi_decode_cpux(const struct dmi_header *h)
 					char *size  = (h->length >= 0x20 && WORD(data + 0x0C) == 0x7FFF) ? dmi_memory_device_extended_size_str(DWORD(data + 0x1C)) : dmi_memory_device_size_str(WORD(data + 0x0C));
 					char *speed = dmi_memory_device_speed_str(WORD(data + 0x15), h->length >= 0x5C ? DWORD(data + 0x54) : 0);
 					snprintf(specs, MAXSTR, "%s @ %s (%s %s)",
-					         size,
-					         speed,
-					         dmi_memory_device_form_factor(data[0x0E]),
-					         dmi_memory_device_type(data[0x12]));
+								size,
+								speed,
+								dmi_memory_device_form_factor(data[0x0E]),
+								dmi_memory_device_type(data[0x12]));
 					strncat(cpux_data->memory[cpux_data->dimm_count], specs, MAXSTR);
 				}
 				cpux_data->dimm_count++;
 			}
 			break;
 		default:
-			MSG_ERROR("internal error in dmi_decode_cpux(): type %u is not supported.", h->type);
+			fprintf(stderr, "internal error in dmi_decode_cpux(): type %u is not supported.", h->type);
 			break;
 	}
 }
